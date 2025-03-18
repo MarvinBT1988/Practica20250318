@@ -35,8 +35,20 @@
             @Html.DisplayFor(model => model.NombreCliente)
         </dd>
     </dl>
+    <div class="row" id="divDetallesVenta">
+        <partial name="_DetallesVenta" model="Model.DetallesVenta" />
+    </div>
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+@section Scripts {
+    <script>
+        $(function () {
+            $("*[data-create]").hide();
+            $("*[data-edit]").hide();
+            $("*[data-disabled]").attr("disabled","disabled");
+        });
+    </script>
+}

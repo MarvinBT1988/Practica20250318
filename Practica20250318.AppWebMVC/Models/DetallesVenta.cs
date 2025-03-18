@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Practica20250318.AppWebMVC.Models;
 
@@ -20,4 +21,7 @@ public partial class DetallesVenta
     public virtual Producto? Producto { get; set; }
 
     public virtual Venta? Venta { get; set; }
+
+    [NotMapped]
+    public int NumItem { get; set; }
 }

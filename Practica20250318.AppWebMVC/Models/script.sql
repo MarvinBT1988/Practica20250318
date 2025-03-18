@@ -34,3 +34,9 @@ CREATE TABLE DetallesVenta (
     PrecioUnitario DECIMAL(10, 2) NOT NULL,
     Subtotal DECIMAL(10, 2)
 );
+
+ALTER TABLE DetallesVenta
+ADD CONSTRAINT FK_DetallesVenta_Ventas
+FOREIGN KEY (VentaID)
+REFERENCES Ventas(Id)
+ON DELETE CASCADE;
