@@ -29,6 +29,8 @@
                     <td>
                         @item.NumItem
                         <input type="hidden" name="@getName(index,"NumItem")" value="@item.NumItem" />
+                        <input type="hidden" name="@getName(index,"VentaId")" value="@item.VentaId" />
+                        <input type="hidden" name="@getName(index,"Id")" value="@item.Id" />
                     </td>
                     <td>
                         <input type="number" data-disabled onchange="updateItemDetVenta()" style="max-width:100px" class="form-control" name="@getName(index,"Cantidad")" value="@item.Cantidad" />

@@ -39,6 +39,15 @@ namespace Practica20250318.AppWebMVC.Controllers
             {
                 return NotFound();
             }
+            if (venta.DetallesVenta != null)
+            {
+                int numItem = 1;
+                foreach (var item in venta.DetallesVenta)
+                {
+                    item.NumItem = numItem;
+                    numItem++;
+                }
+            }
             ViewBag.Productos = _context.Productos;
             return View(venta);
         }
@@ -73,10 +82,22 @@ namespace Practica20250318.AppWebMVC.Controllers
                 return NotFound();
             }
 
-            var venta = await _context.Ventas.FindAsync(id);
+            var venta = await _context.Ventas
+                 .Include(s => s.DetallesVenta) // Se agrego un join para obtener todos los detalles ventas
+               .FirstOrDefaultAsync(m => m.Id == id);
             if (venta == null)
             {
                 return NotFound();
+            }
+            ViewBag.Productos = _context.Productos;
+            if (venta.DetallesVenta != null)
+            {
+                int numItem = 1;
+                foreach(var item in venta.DetallesVenta)
+                {
+                    item.NumItem= numItem;
+                    numItem++;
+                }
             }
             return View(venta);
         }
@@ -86,7 +107,7 @@ namespace Practica20250318.AppWebMVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Correlativo,FechaVenta,Total,NombreCliente")] Venta venta)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Correlativo,FechaVenta,Total,NombreCliente,DetallesVenta")] Venta venta)
         {
             if (id != venta.Id)
             {
@@ -97,19 +118,38 @@ namespace Practica20250318.AppWebMVC.Controllers
             {
                 try
                 {
+                    if (venta.DetallesVenta == null || venta.DetallesVenta.Count == 0)
+                        throw new Exception("El detalle de venta es obligatorio");
+                    var listIds = venta.DetallesVenta.Select(s => s.Id).ToList();
+                    var detalles = await _context.DetallesVenta.Where(s => s.VentaId == venta.Id).Select(s=> s.Id).ToListAsync();
                     _context.Update(venta);
                     await _context.SaveChangesAsync();
+                    
+                    var detalleDel = new List<DetallesVenta>();
+                    foreach (var detalle in detalles)
+                    {
+                        var existe = listIds.FirstOrDefault(s=> s== detalle);
+                        if (!(existe>0))
+                        {
+                            var find = await _context.DetallesVenta.FirstOrDefaultAsync(s=> s.Id==detalle);
+                            if (find != null)
+                                detalleDel.Add(find);
+                        }                           
+                    }                    
+                   
+                    if (detalleDel.Count > 0)
+                    {
+                        foreach (var item in detalleDel)
+                            _context.DetallesVenta.Remove(item);
+                        await _context.SaveChangesAsync();
+                    }                       
+                   
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (!VentaExists(venta.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError("", ex.Message);
+                    ViewBag.Productos = _context.Productos;
+                    return View(venta);
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -130,6 +170,15 @@ namespace Practica20250318.AppWebMVC.Controllers
             if (venta == null)
             {
                 return NotFound();
+            }
+            if (venta.DetallesVenta != null)
+            {
+                int numItem = 1;
+                foreach (var item in venta.DetallesVenta)
+                {
+                    item.NumItem = numItem;
+                    numItem++;
+                }
             }
             ViewBag.Productos = _context.Productos;
             return View(venta);
